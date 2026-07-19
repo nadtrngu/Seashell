@@ -1,20 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <signal.h>
 #include <stdint.h>
 #include <sys/types.h>
-#include <unistd.h>
+#include <string.h>
 #include <sys/wait.h>
-#include "methods.h"
+#include "builtins.h"
 
 #define INPUT_MAX_LENGTH 1024 // 1KB
-
-char *get_home_path()
-{
-    return getenv("HOME");
-}
-
 
 int main()
 {
@@ -41,12 +34,6 @@ int main()
 
         token = strtok(buffer, " ");
 
-        if (strcmp(token, "exit") == 0)
-        {
-            free(buffer);
-            free(tokens);
-            exit(EXIT_SUCCESS);
-        }
         while (token != NULL)
         {
             tokens[counter] = token;
@@ -67,36 +54,21 @@ int main()
 
         if (strcmp(tokens[0], "echo") == 0)
         {
-            if (counter > 1)
-            {
-                for(size_t i = 1; i < counter; i++)
-                {
-                    printf("%s ", tokens[i]);
-                }
-                
-                printf("\n");
-                fflush(stdout);
-            }
+            echo(counter, tokens);
             counter = 0;
             continue;
         }
         else if (strcmp(tokens[0], "cd") == 0)
         {
-            char *home_path = NULL;
-            if (counter == 1)
-            {
-                home_path = get_home_path();
-            }
-            else
-            {
-                home_path = tokens[1];
-            }
-            if (chdir(home_path) == -1)
-            {
-                perror("chdir");
-            }
+            cd(counter, tokens);
             counter = 0;
             continue;
+        }
+        else if (strcmp(tokens[0], "exit") == 0)
+        {
+            free(buffer);
+            free(tokens);
+            exit(EXIT_SUCCESS);
         }
 
         pid = fork();

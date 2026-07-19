@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -pedantic
 LDFLAGS =
-SOURCES = main.c methods.c # Add more source files as needed
+SOURCES = main.c builtins.c # Add more source files as needed
 OBJECTS = $(SOURCES:.c=.o)
 EXECUTABLE = seashell
 
