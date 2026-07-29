@@ -6,5 +6,6 @@
 void read_command(char **buffer, char **tokens);
 void echo(size_t counter, char **tokens);
 void cd(size_t counter, char **tokens);
+void redirections(char *commands[], char *direction, char *filename);
 
 #endif

@@ -52,6 +52,30 @@ int main()
         if (tokens[0] == NULL)
             continue;
 
+        int i = 0;
+
+        for (i; i < counter; i++)
+        {
+            if (strcmp(tokens[i], "<") == 0 || strcmp(tokens[i], ">") == 0 || strcmp(tokens[i], ">>") == 0)
+                break;
+        }
+        if (counter > i)
+        {
+            char *commands[i + 1];
+            for (int j = 0; j <= i; j++)
+            {
+                commands[j] = tokens[j];
+            }
+            commands[i] = NULL;
+
+            if (tokens[i + 1] != NULL)
+            {
+                redirections(commands, tokens[i], tokens[i + 1]);
+                counter = 0;
+                continue;
+            }
+        }
+
         if (strcmp(tokens[0], "echo") == 0)
         {
             echo(counter, tokens);

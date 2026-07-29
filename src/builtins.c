@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <fcntl.h>
+#include <sys/types.h>
 #include <sys/wait.h>
 
 #include "builtins.h"
@@ -65,5 +67,68 @@ void cd(size_t counter, char **tokens)
     if (chdir(home_path) == -1)
     {
         perror("chdir");
+    }
+}
+
+// > redirects stdout to a file (ls > output.txt will write the results of ls into the output.txt file) 1
+// < redirects stdin from a file (wc [word count] < output.txt will output number of lines/words/bytes into the stdout (terminal for example)) 0
+// >> appends to the file instead of replacing.
+void redirections(char *commands[], char *direction, char *filename)
+{
+    int fd;
+
+    pid_t pid = fork();
+
+    if (pid < 0) // error
+    {
+        perror("fork");
+        exit(EXIT_FAILURE);
+    }
+
+    else if (pid == 0) // child
+    {
+        if (strcmp(direction, "<") == 0)
+        {
+            fd = open(filename, O_RDONLY);
+            if (fd == -1)
+            {
+                perror("open");
+                exit(EXIT_FAILURE);
+            }
+            dup2(fd, 0);
+        }
+        if (strcmp(direction, ">>") == 0)
+        {
+            fd = open(filename, O_APPEND | O_CREAT | O_WRONLY, 0644);
+            if (fd == -1)
+            {
+                perror("open");
+                exit(EXIT_FAILURE);
+            }
+
+            dup2(fd, 1);
+        }
+        if (strcmp(direction, ">") == 0)
+        {
+            fd = open(filename, O_CREAT | O_TRUNC | O_WRONLY, 0644);
+            if (fd == -1)
+            {
+                perror("open");
+                exit(EXIT_FAILURE);
+            }
+            dup2(fd, 1);
+        }
+        close(fd);
+
+        if (execvp(commands[0], commands))
+        {
+            perror("execvp");
+            exit(EXIT_FAILURE);
+        }
+    }
+    else
+    {
+        int status;
+        waitpid(pid, &status, 0);
     }
 }
